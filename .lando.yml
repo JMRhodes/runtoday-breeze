@@ -1,0 +1,10 @@
+name: runtoday-app
+recipe: laravel
+config:
+  webroot: ./public
+  php: '8.1'
+  composer_version: '2.6.6'
+  via: nginx
+  database: mariadb
+  cache: redis
+  xdebug: true
