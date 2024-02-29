@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\ActivityController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Collection;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,21 +20,17 @@ use Inertia\Inertia;
 */
 
 Route::get( '/', function () {
-    return Inertia::render( 'Welcome', [
-        'canLogin'       => Route::has( 'login' ),
-        'canRegister'    => Route::has( 'register' ),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion'     => PHP_VERSION,
+    return Inertia::render( 'Feed', [
+        'activities' => DB::table( 'activities' )
+            ->where( 'user_id', '=', Auth::id() )
+            ->get(),
+        'yearly'     => []
     ] );
-} );
+} )->middleware( [ 'auth', 'verified' ] )->name( 'feed' );
 
-Route::get( '/activity', function () {
-    return Inertia::render( 'Activities/Add' );
-} )->middleware( [ 'auth', 'verified' ] )->name( 'activity' );
-
-Route::get( '/dashboard', function () {
-    return Inertia::render( 'Dashboard' );
-} )->middleware( [ 'auth', 'verified' ] )->name( 'dashboard' );
+Route::get( '/activity', [ ActivityController::class, 'add' ] )
+    ->middleware( [ 'auth', 'verified' ] )
+    ->name( 'activity' );
 
 Route::middleware( 'auth' )->group( function () {
     Route::get( '/profile', [ ProfileController::class, 'edit' ] )->name( 'profile.edit' );
